@@ -6,10 +6,10 @@
     @for (int i = 0; i < @Height; i++)
     {
         <tr>
-            @for (int j = 0; j < @Width; j++)
-            {
-                Tile tile = @Tiles[i][j];
-                <td><button class="btn btn-small" onclick="@tile.Reveal">@tile.Value</button></td>
+            @for (int j = 0; j < @Width; j++) {
+                Tile tile = Tiles[i][j];
+                Action reveal = tile.Reveal;
+                <td><button class="btn btn-small" id="@i,@j" onclick="@reveal">@tile.Value</button></td>
             }
         </tr>
     }
@@ -93,6 +93,12 @@
         }
 
         public void Reveal() {
+            // The value doesn't seem to matter (?!) - just as long as it's there
+            // to prevent too many calls.
+            Reveal(10);
+        }
+
+        private void Reveal(int revealOthersLimit) {
             // Already revealed
             if (Value != " ")
                 return;
@@ -102,27 +108,24 @@
                 return;
             }
 
-            int neighbouringBombCount = GetNeighboursBombCount();
+            var neighbours = GetNeighbours();
+            
+            int neighbouringBombCount = neighbours.Count(x => x.IsBomb);
             // If no neighbours are bombs, reveal all.
-            if (neighbouringBombCount == 0) {
-                IterateNeighbours(tile => {
-                    tile.Reveal();
-                });
+            if (neighbouringBombCount == 0 && revealOthersLimit > 0) {
+                foreach (Tile neighbour in neighbours) {
+                    // Limitations on stack depth means that this cannot recursively
+                    // reveal all neighbours indefinitely - that can cause a stack
+                    // overflow in Chrome and a printer prompt in Firefox.
+                    neighbour.Reveal(revealOthersLimit - 1);
+                }
             }
             Value = neighbouringBombCount.ToString();
         }
-        
-        private int GetNeighboursBombCount() {
-            int result = 0;
-            IterateNeighbours(tile => {
-                if (tile.IsBomb) result++;
-            });
-            return result;
-        }
 
-        private void IterateNeighbours(Action<Tile> neighbourAction) {
-            // Slightly strange way of doing this since creating a list does not appear to be working currently?
-
+        private ICollection<Tile> GetNeighbours() {
+            List<Tile> result = new List<Tile>();
+            
             // For the row above, the current row and the row below
             for (int i = XIndex - 1; i <= XIndex + 1; i++) {
                 // If the index is out of bounds, continue.
@@ -138,9 +141,11 @@
                     if (i == XIndex && j == YIndex)
                         continue;
             
-                    neighbourAction(tiles[i][j]);
+                    result.Add(tiles[i][j]);
                 }
             }
+
+            return result;
         }
     }
 }
