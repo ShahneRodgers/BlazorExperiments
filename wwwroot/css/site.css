@@ -125,3 +125,25 @@ app {
 .btn {
     background-color: gray;
 }
+
+.game {
+    display: none;
+}
+
+.game-visible {
+    display: block;
+}
+
+.game-result {
+    display: none;
+}
+
+.game-won {
+    display: block;
+    background-color: #34ce57;
+}
+
+.game-lost {
+    display: block;
+    background-color: red;
+}

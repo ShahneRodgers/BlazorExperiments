@@ -1,8 +1,9 @@
 @page "/game"
+@inherits Minesweeper
 
 <h1>Play</h1>
 
-<table>
+<table class="game @(CurrentState == State.Playing ? "game-visible" : "game-over")">
     @for (int i = 0; i < @Height; i++)
     {
         <tr>
@@ -14,130 +15,29 @@
         </tr>
     }
 </table>
+<div class="game-result @GetGameResult()">
+    @switch (CurrentState) {
+        case State.Lost:
+            <p>Game over man, game over!</p>
+            break;
+        case State.Won:
+            <p>Well done!</p>
+            break;
+    }   
+</div>
 
 @functions {
-    private int width = 9; // 24;
-    private int height = 9; //24;
-    private int numBombs = 2; //99;
-    private Tile[][] tiles;
 
-    [Parameter]
-    private int Width {
-        get { return width; }
-        set {
-            tiles = null;
-            width = value;
-        }
-    }
-
-    [Parameter]
-    private int Height {
-        get { return height; }
-        set {
-            tiles = null;
-            height = value;
-        }
-    }
-
-    [Parameter]
-    private int NumBombs {
-        get { return numBombs; }
-        set {
-            tiles = null;
-            numBombs = value;
-        }
-    }
-
-    private Tile[][] Tiles {
-        get {
-            if (tiles == null)
-                Init();
-            return tiles;
-        }
-    }
-
-    private void Init() {
-        int remainingBombs = numBombs;
-        int remainingTiles = height * width;
-        Random random = new Random();
-        tiles = new Tile[height][];
-        for (int i = 0; i < height; ++i) {
-            tiles[i] = new Tile[width];
-            for (int j = 0; j < width; ++j) {
-                bool isBomb = (random.Next(remainingTiles) < remainingBombs);
-                if (isBomb)
-                    remainingBombs--;
-
-                tiles[i][j] = new Tile(isBomb, i, j, tiles);
-
-                remainingTiles--;
-            }
-        }
-
-    }
-
-    public class Tile {
-        private readonly Tile[][] tiles;
-
-        public bool IsBomb { get; }
-        public int XIndex { get; }
-        public int YIndex { get; }
-
-        public string Value { get; set; } = " ";
-
-        public Tile(bool isBomb, int x, int y, Tile[][] tiles) {
-            IsBomb = isBomb;
-            XIndex = x;
-            YIndex = y;
-            this.tiles = tiles;
-        }
-
-        public void Reveal() {
-            // Already revealed
-            if (Value != " ")
-                return;
-
-            if (IsBomb) {
-                Value = "x";
-                return;
-            }
-
-            var neighbours = GetNeighbours();
-            
-            int neighbouringBombCount = neighbours.Count(x => x.IsBomb);
-            Value = neighbouringBombCount.ToString();
-            
-            // If no neighbours are bombs, reveal all.
-            if (neighbouringBombCount == 0) {
-                foreach (Tile neighbour in neighbours) {
-                    neighbour.Reveal();
-                }
-            }
-        }
-
-        private ICollection<Tile> GetNeighbours() {
-            List<Tile> result = new List<Tile>();
-            
-            // For the row above, the current row and the row below
-            for (int i = XIndex - 1; i <= XIndex + 1; i++) {
-                // If the index is out of bounds, continue.
-                if (i < 0 || i >= tiles.Length)
-                    continue;
-            
-                // For the column before, the current column and the next column
-                for (int j = YIndex - 1; j <= YIndex + 1; j++) {
-                    // If the index is out of bounds, continue.
-                    if (j < 0 || j >= tiles[i].Length)
-                        continue;
-                    // If this is the current node, continue.
-                    if (i == XIndex && j == YIndex)
-                        continue;
-            
-                    result.Add(tiles[i][j]);
-                }
-            }
-
-            return result;
+    public string GetGameResult() {
+        switch (CurrentState) {
+            case State.Playing:
+                return "";
+            case State.Won:
+                return "game-won";
+            case State.Lost:
+                return "game-lost";
+            default:
+                throw new ArgumentOutOfRangeException();
         }
     }
 }
