@@ -1,5 +1,5 @@
-@page "/game"
-@inherits Minesweeper
+@page "/minesweeper"
+@inherits MinesweeperBase
 
 <h1>Play</h1>
 
@@ -28,7 +28,7 @@
 
 @functions {
 
-    public string GetGameResult() {
+    private string GetGameResult() {
         switch (CurrentState) {
             case State.Playing:
                 return "";

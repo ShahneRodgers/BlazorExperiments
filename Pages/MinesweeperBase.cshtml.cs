@@ -4,10 +4,10 @@ using Microsoft.AspNetCore.Blazor.Components;
 using System.Linq;
 
 namespace Minesweeper.Pages {
-    public class Minesweeper : BlazorComponent {
-        private int width = 9;    // 24;
-        private int height = 9;   //24;
-        private int numBombs = 9; //99;
+    public class MinesweeperBase : BlazorComponent {
+        private int width = 9;
+        private int height = 9;
+        private int numBombs = 9;
         private Tile[][] tiles;
 
         private int numTilesHidden;
@@ -87,7 +87,7 @@ namespace Minesweeper.Pages {
         }
 
         protected class Tile {
-            private readonly Minesweeper parent;
+            private readonly MinesweeperBase parent;
 
             public bool IsBomb { get; }
             public int XIndex { get; }
@@ -95,7 +95,7 @@ namespace Minesweeper.Pages {
 
             public string Value { get; set; } = " ";
 
-            public Tile(bool isBomb, int x, int y, Minesweeper parent) {
+            public Tile(bool isBomb, int x, int y, MinesweeperBase parent) {
                 IsBomb = isBomb;
                 XIndex = x;
                 YIndex = y;

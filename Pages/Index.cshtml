@@ -1,7 +1,51 @@
 ﻿@page "/"
 
-<h1>Hello, world!</h1>
+<h1>Choose a game</h1>
 
-Welcome to your new app.
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+@if (!DisplayGame) {
+    <button class="btn btn-primary" onclick="@StartEasyGame">Easy</button>
+    <button class="btn btn-primary" onclick="@StartMediumGame">Medium</button>
+    <button class="btn btn-primary" onclick="@StartHardGame">Hard</button>
+}
+else {
+    <MinesweeperDisplay Width="@Width" Height="@Height" NumBombs="@NumBombs" />
+    <button class="btn btn-warning" onclick="@Clear">Exit</button>
+}
+ 
+@functions {
+    [Parameter]
+    private int Height { get; set; }
+    
+    [Parameter]
+    private int Width { get; set; }
+    
+    [Parameter]
+    private int NumBombs { get; set; }
+    
+    [Parameter]
+    private bool DisplayGame { get; set; }
+    
+    private void StartEasyGame(){
+        StartGame(10, 10, 10);
+    }
+
+    private void StartMediumGame() {
+        StartGame(16, 16, 40);
+    }
+
+    private void StartHardGame() {
+        StartGame(16, 30, 99);
+    }
+
+    private void StartGame(int height, int width, int numBombs) {
+        Width = width;
+        Height = height;
+        NumBombs = numBombs;
+        DisplayGame = true;
+    }
+
+    private void Clear() {
+        DisplayGame = false;
+    }
+}
